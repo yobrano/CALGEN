@@ -1,0 +1,17 @@
+{% if INPUTFORMAT1 %}
+{{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{toJSONVarName(fieldName)}};
+{% elif INPUTFORMAT2 %}
+{{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{dataType|lower}}Array[{{typeIndex}}];
+{% endif %}
+{# When input is of type string and not date/time/datetime #}
+{# 
+{% if INPUTFORMAT1 %}
+IF {{toJSONVarName(fieldName)}} <> '' THEN BEGIN
+    EVALUATE({{tableName}}Tbl.{{toCALVarName(fieldName)}},{{toJSONVarName(fieldName)}} );
+END;
+{% elif INPUTFORMAT2 %}
+IF {{jsonType}}Array[{{typeIndex}}] <> '' THEN BEGIN
+    EVALUATE({{tableName}}Tbl.{{toCALVarName(fieldName)}},{{jsonType}}Array[{{typeIndex}}]);
+END;
+{% endif %}
+#}

@@ -1,0 +1,10 @@
+Result := '[';
+
+{{tableName}}Tbl.RESET;
+REPEAT 
+    Result += {{tableName}}Serializer({{tableName}}Tbl);
+    Result += ',';
+UNTIL {{tableName}}Tbl.NEXT = 0;
+Result := COPYSTR(Result, 1, STRLEN(Result) - 1);
+Result += ']';
+Result := ResponseFormat(200, Result, 'List for {{tableName}} retrieved successfully.');

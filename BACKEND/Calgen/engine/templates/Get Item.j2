@@ -1,0 +1,18 @@
+{% extends "parents/Destructure.j2" %}
+{% block Destructure %}
+
+{{tableName}}Tbl.RESET;
+
+{% for fieldName in PrimaryKeys["Field Name"] %}
+{{tableName}}Tbl.SETFILTER({{toCALVarName(fieldName)}}, {{toJSONVarName(fieldName)}}ID);
+{% endfor %}
+
+IF {{tableName}}Tbl.FINDFIRST THEN BEGIN
+   Result := {{tableName}}Serializer({{tableName}}Tbl);
+   Result := ResponseFormat(200, Result, '{{tableName}} was found.');
+END ELSE  BEGIN
+  Result :=  Empty{{tableName}}();  
+  Result := ResponseFormat(404, Result, 'Not found.');
+END;
+
+{% endblock %}

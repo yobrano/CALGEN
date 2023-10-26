@@ -1,0 +1,17 @@
+{% extends "parents/Destructure.j2" %}
+{% block Destructure %}
+{% set fields = zip(
+    JsonName,
+    JsonType,
+    TypeIndex
+) %}
+public class {{tableName}}Model{
+{% for jsonName, jsonType, typeIndex in fields %}
+    {% if (jsonType == "date") or (jsonType == "time") or (jsonType == "datetime") %}
+    public DateTime? {{jsonName}} {get; set;} // {{jsonType}}Array - {{typeIndex}}
+    {% else %}
+    public {{jsonType}} {{jsonName}} {get; set;} // {{jsonType}}Array - {{typeIndex}}
+    {% endif %}
+{% endfor %}
+}
+{% endblock %}

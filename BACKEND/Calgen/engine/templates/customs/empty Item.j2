@@ -1,0 +1,13 @@
+{% extends "parents/Destructure.j2" %}
+{% block Destructure %}
+{% set fields = PrimaryKeys["Field Name"] %}
+
+{{tableName}}Tbl.INIT;
+
+{% for fieldName in fields %}
+{{tableName}}Tbl.{{toCALVarName(fieldName)}} := 'N/A';
+{% endfor %}
+
+Result:= {{tableName}}Serializer({{tableName}}Tbl);
+
+{% endblock %}

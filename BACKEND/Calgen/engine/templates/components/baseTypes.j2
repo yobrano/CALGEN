@@ -1,0 +1,5 @@
+{%if INPUTFORMAT1 %}
+{{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{toJSONVarName(fieldName)}};
+{%elif INPUTFORMAT2 %}
+{{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{jsonType}}Array[{{typeIndex}}];
+{% endif %}

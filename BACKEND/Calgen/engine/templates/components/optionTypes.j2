@@ -1,0 +1,17 @@
+{% if INPUTFORMAT1 %}
+CASE TRUE OF 
+    {% for option in optionList %}
+    LOWERCASE({{jsonName}}) = '{{option|lower}}':
+        {{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{tableName}}Tbl.{{toCALVarName(fieldName)}}::{{toCALVarName(option)}};
+    {%endfor%}
+
+    END;
+{% elif INPUTFORMAT2 %}
+CASE TRUE OF 
+    {% for option in optionList %}
+    LOWERCASE({{jsonType}}Array[{{typeIndex}}]) = '{{option|lower}}':
+        {{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{tableName}}Tbl.{{toCALVarName(fieldName)}}::{{toCALVarName(option)}};
+    {%endfor%}
+
+    END;
+{% endif %}

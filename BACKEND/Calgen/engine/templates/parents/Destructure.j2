@@ -1,0 +1,16 @@
+{% set FieldName = table["Field Name"] %}
+{% set DataType = table["Data Type"] %}
+{% set RetainedField = table["Retained Field"] %}
+{% set OptionList = table["Option List"] %}
+{% set ForeignTable = table["Foreign Table"] %}
+{% set FilterField = table["Filter Field"] %}
+{% set AssignField = table["Assign Field"] %}
+{% set JsonType = table["Json Type"] %}
+{% set TypeIndex = table["Type Index"] %}
+
+{% set PrimaryKeys = table.loc[table["Primary Key"].notna() ]%}
+{% set ForeignKeys = table.loc[table["Foreign Key"].notna() ]%}
+{% set JsonName = table["Field Name"].apply(toJSONVarName) %} 
+{% set CalName = table["Field Name"].apply(toCALVarName) %} 
+
+{%block Destructure %}{% endblock%}

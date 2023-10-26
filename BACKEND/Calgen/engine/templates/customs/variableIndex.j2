@@ -1,0 +1,15 @@
+{% extends "parents/Destructure.j2" %}
+
+{% block Destructure%}
+{% set fields = zip(
+    FieldName,
+    DataType,
+    ForeignTable,
+    JsonType,
+    TypeIndex
+) %}
+
+{% for fieldName, dataType, foreignTable, jsonType, typeIndex in fields %}
+{{jsonType}}Arr[{{typeIndex - 1}}] = EmployeeModel.{{toJSONVarName(fieldName)}};
+{% endfor %}
+{% endblock %}

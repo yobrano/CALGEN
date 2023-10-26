@@ -1,0 +1,61 @@
+{% if INPUTFORMAT1 %}
+{##}
+{##}
+{% if filterFields and type(foreignTable)==str %}{# false if the list is empty #}
+IF {{toJSONVarName(fieldName)}} <> '' THEN BEGIN
+    {{toJSONVarName(foreignTable)}}Tbl.RESET;
+{% for filterField, filterValue in filterFields %}
+  {% if "**" == filterValue  %}
+    {{toJSONVarName(foreignTable)}}Tbl.SETFILTER({{toCALVarName(filterField)}}, {{toJSONVarName(fieldName)}} );
+  {% elif "*." in filterValue %}
+    {{toJSONVarName(foreignTable)}}Tbl.SETFILTER({{toCALVarName(filterField)}}, {{tableName}}Tbl.{{toCALVarName(fieldName[2:])}});
+  {% else %}
+    {{toJSONVarName(foreignTable)}}Tbl.SETFILTER({{toCALVarName(filterField)}}, {{filterValue}} );
+  {% endif %}
+{% endfor %}
+    IF {{toJSONVarName(foreignTable)}}Tbl.FINDFIRST THEN BEGIN
+{% for childField, parentField in assignFields%}
+      {% if "**" in childField  %}
+        {{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{toJSONVarName(foreignTable)}}Tbl.{{toCALVarName(parentField)}};
+      {% else %}
+        {{tableName}}Tbl.{{toCALVarName(childField)}} := {{toJSONVarName(foreignTable)}}Tbl.{{toCALVarName(parentField)}};
+      {% endif %}
+{% endfor %}
+    END;
+END;
+{%else%}
+{{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{toJSONVarName(fieldName)}};
+{%endif%}
+{##}
+{##}
+{% elif INPUTFORMAT2 %}
+{##}
+{##}
+{% if filterFields and type(foreignTable)==str %}{# false if the list is empty #}
+IF {{jsonType}}Array[{{typeIndex}}] <> '' THEN BEGIN
+    {{toJSONVarName(foreignTable)}}Tbl.RESET;
+{% for filterField, filterValue in filterFields %}
+  {% if "**" == filterValue  %}
+    {{toJSONVarName(foreignTable)}}Tbl.SETFILTER({{toCALVarName(filterField)}}, {{jsonType}}Array[{{typeIndex}}] );
+  {% elif "*." in filterValue %}
+    {{toJSONVarName(foreignTable)}}Tbl.SETFILTER({{toCALVarName(filterField)}}, {{tableName}}Tbl.{{toCALVarName(filterValue[2:])}});
+  {% else %}
+    {{toJSONVarName(foreignTable)}}Tbl.SETFILTER({{toCALVarName(filterField)}}, {{filterValue}} );
+  {% endif %}
+{% endfor %}
+    IF {{toJSONVarName(foreignTable)}}Tbl.FINDFIRST THEN BEGIN
+{% for childField, parentField in assignFields%}
+      {% if "**" in childField  %}
+        {{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{toJSONVarName(foreignTable)}}Tbl.{{toCALVarName(parentField)}};
+      {% else %}
+        {{tableName}}Tbl.{{toCALVarName(childField)}} := {{toJSONVarName(foreignTable)}}Tbl.{{toCALVarName(parentField)}};
+      {% endif %}
+{% endfor %}
+    END;
+END;
+{%else%}
+{{tableName}}Tbl.{{toCALVarName(fieldName)}} := {{jsonType}}Array[{{typeIndex}}];
+{%endif%}
+{##}
+{##}
+{% endif %}

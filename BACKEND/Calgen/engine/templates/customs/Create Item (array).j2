@@ -1,0 +1,19 @@
+{% extends "parents/Destructure.j2" %}
+{% block Destructure %}
+{% set fields = PrimaryKeys["Field Name"] %}
+
+{{tableName}}Tbl.INIT;
+success := {{tableName}}Tbl.INSERT(TRUE);
+
+IF success THEN BEGIN
+{% for fieldName in fields %}
+  Result := '{\"{{toJSONVarName(fieldName)}}\": \"'+FORMAT({{tableName}}Tbl."No.")+'\"}'; 
+{% endfor %}
+  Result := ResponseFormat(200, Result, '{{tableName}} was generated successfully');
+
+END ELSE BEGIN
+  Result := ResponseFormat(500, '', '{{tableName}} was NOT generated.');
+
+END;
+
+{% endblock %}

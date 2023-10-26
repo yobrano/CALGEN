@@ -1,0 +1,36 @@
+{% extends "parents/Destructure.j2" %}
+{% block Destructure %}
+{% set fields = zip(
+    FieldName,
+    DataType,
+    OptionList,
+    ForeignTable,
+    FilterField,
+    AssignField,
+    JsonType,
+    TypeIndex
+)%}
+{% for fieldName, dataType, optionList, foreignTable, filterFields, assignFields, jsonType, typeIndex  in fields %}
+    {% if ((dataType|lower == "text") or
+        (dataType|lower == "boolean") or
+        (dataType|lower == "integer") or
+        (dataType|lower == "decimal") 
+        )%}
+        {% include "components/baseTypes.j2" %}
+    {# Date Time #}
+    {% elif((dataType|lower == "date") or
+            (dataType|lower  == "time") or
+            (dataType|lower == "datetime") 
+     )%}
+        {% include "components/dateTimeTypes.j2" %}
+    {# Foreign Keys #}
+    {% elif (dataType|lower  == "code") %}
+        {% include "components/codeTypes.j2" %}
+    {# Options Fields #}
+    {% elif (dataType|lower  == "option") %}
+        {% include "components/optionTypes.j2" %}
+    {% endif %}
+
+{% endfor %}
+
+{% endblock %}
