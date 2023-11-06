@@ -10,9 +10,7 @@ function Build() {
 		event.preventDefault()
 		downloadBuilt()
 	}
-		
-
-
+	
 	return (
 		<div>
 			<button onClick={handleBuild} > Build </button>

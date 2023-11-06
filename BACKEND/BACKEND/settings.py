@@ -135,7 +135,7 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=6),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,  # Reusable refresh tokens
     'BLACKLIST_AFTER_ROTATION': True,
@@ -172,7 +172,7 @@ STATIC_ROOT = BASE_DIR / "static"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-CORS_ORIGINS_WHITELIST = [
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"
 ]
 

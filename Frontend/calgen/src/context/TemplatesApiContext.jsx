@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import {tableApi} from '@src-utils/Endpoints'
+import {useProtectedEndpoint} from "../utils/useProtectedEndpoint"
 import {useSourceTableContext} from "@src-context/SourceTableContext"
 import {useSourceTableApi} from "@src-context/SourceTableApiContext"
 
@@ -8,7 +8,7 @@ const TempApiContext = React.createContext()
 
 function TemplatesApiContext({ children }) {
 	const [settings, setSettings] = useState(defaultSettings)
-	const api = tableApi()
+	const tableApi = useProtectedEndpoint()
 	const {tableID, tableName} = useSourceTableApi()
 	
 	const downloadBuilt = ()=> {

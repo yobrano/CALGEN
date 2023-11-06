@@ -1,76 +1,79 @@
-import React, {  useContext, useState } from 'react'
-import {tableApi} from "@src-utils/Endpoints"
-import {useSourceTableContext} from "@src-context/SourceTableContext"
+import React, { useContext, useState } from "react";
+import { useProtectedEndpoint } from "../utils/useProtectedEndpoint";
+import { useSourceTableContext } from "@src-context/SourceTableContext";
+import { endpoints } from "../utils/endpoints";
 
-export const TableApiContext = React.createContext()
+export const TableApiContext = React.createContext();
 
-function SourceTableApiContext({children}) {
-	const [tableID, setTableID] = useState(null)
-	const [tableName, setTableName] = useState(null)
-	const {populateTable, table} = useSourceTableContext()
+export default function SourceTableApiContext({ children }) {
+    const [tableID, setTableID] = useState(null);
+    const [tableName, setTableName] = useState(null);
+    const { populateTable, table } = useSourceTableContext();
+    const api = useProtectedEndpoint();
 
-	const uploadTable = (file, func) => {
-		tableApi.post( "/table", { file }, { headers: { 'Content-Type': 'multipart/form-data' } })
-		
-		.then((response)=>{
-			setTableID(response.data.id)
-			setTableName(response.data.name)
-			console.log("--- Uploaded successfully", response.data)
-			if(func)return func(response.data)
-		})
-		
-		.catch((error)=>{
-			console.error("--- Upload Csv failed", error)
-		})
+    const uploadTable = (payload) => {
+        const endpoint = endpoints.fileManagerURL();
+        api.post(endpoint, payload, {
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+            .then((response) => {
+                setTableID(response.data.id);
+                setTableName(response.data.name);
+                console.log("--- Uploaded successfully", response.data);
+            })
 
-	}
+            .catch((error) => {
+                console.error("--- Upload Csv failed", error);
+            });
+    };
 
-	const getTable = () => {
-		tableApi.get(`/table/${tableID}`)
+    const getTable = () => {
+        const endpoint = endpoints.detailedFileManagerURL();
+        api.get(endpoint)
 
-		.then((response)=>{
-			populateTable(response.data.table)
-			setTableID(response.data.id)
-			setTableName(response.data.name)
-			console.log("--- Get table successfully", response.data)
-		})
-		
-		.catch((error)=>{
-			console.error("--- Get Table Failed", error)
-		})
-	}
+            .then((response) => {
+                populateTable(response.data.table);
+                setTableID(response.data.id);
+                setTableName(response.data.name);
+                console.log("--- Get table successfully", response.data);
+            })
 
-	const updateTable = () => {
-		tableApi.put(`/table/${tableID}`, {table})
-		.then((response)=>{
-			console.log(response.data)
-			console.log("--- Table Update successfully")
+            .catch((error) => {
+                console.error("--- Get Table Failed", error);
+            });
+    };
 
-		}).catch((error)=>{
-			console.error("--- Update Table ERROR", error)
-		})
-	}
+    const updateTable = (payload) => {
+        const endpoint = endpoints.detailedFileManagerURL();
+        api.put(endpoint, payload)
 
-	// Context Details
-	const contextData = {
-		tableID,
-		tableName
-	}
+            .then((response) => {
+                console.log(response.data);
+                console.log("--- Table Update successfully");
+            })
 
-	const contextMethods = {
-		uploadTable,
-		getTable,
-		updateTable,
-	}
+            .catch((error) => {
+                console.error("--- Update Table ERROR", error);
+            });
+    };
 
-	return (
-		<TableApiContext.Provider  value= {{...contextData, ...contextMethods}} >
-			{children}
-		</TableApiContext.Provider>
-	)
+    // Context Details
+    const contextData = {
+        tableID,
+        tableName,
+    };
+
+    const contextMethods = {
+        uploadTable,
+        getTable,
+        updateTable,
+    };
+
+    return (
+        <TableApiContext.Provider value={{ ...contextData, ...contextMethods }}>
+            {children}
+        </TableApiContext.Provider>
+    );
 }
 
-
-export const useSourceTableApi = () => useContext(TableApiContext)
-
-export default SourceTableApiContext
+export const useSourceTableApi = () => useContext(TableApiContext);

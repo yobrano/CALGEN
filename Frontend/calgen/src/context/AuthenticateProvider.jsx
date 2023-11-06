@@ -1,34 +1,50 @@
-import React from 'react'
-import {useTokenContext} from "./TokenProvider"
+import React, { useContext } from 'react'
+import { useTokenContext } from "./TokenProvider"
+import { endpoints }from "../utils/endpoints"
+import { api } from "../utils/useProtectedEndpoint"
+
 const Context = React.createContext()
 
-function AuthenticateProvider({children}) {
-    const {authTokenEmbeder} = useTokenContext()
-    
-    // ------------- Datasets -------------
-    
-    // ------------- Methods -------------
-    // Login
-    const login = ()=>{
+function AuthenticateProvider({ children }) {
+	const { accessToken, authTokenUpdateAndEmbed } = useTokenContext()
+	// ------------- Datasets -------------
 
-    }
-    // Logout
-    
-    
-    // ------------- Provider Assignment -------------
-    const data = {
+	// ------------- Methods -------------
+	const login = (payload) => {
+		const endpoint = endpoints.accountLoginURL()
+		api.post(endpoint, payload )
+		.then((response)=>{
+			authTokenUpdateAndEmbed(response.data)
+		})
+	}
+	const logout = () => {
 
-    }
+	}
 
-    const methods = {
+	const createAccount = () => {
 
-    }
+	}
 
-  return (
-    <Context.Provider value={{...data, ...methods}}>
-        {children}
-    </Context.Provider>
-  )
+	const isAuthenticated = () => {
+		console.log(accessToken)
+		return accessToken !== null
+	}
+	
+	// ------------- Provider Assignment -------------
+	const data = {
+
+	}
+
+	const methods = {
+		login, logout, createAccount, isAuthenticated
+	}
+
+	return (
+		<Context.Provider value={{ ...data, ...methods }}>
+			{children}
+		</Context.Provider>
+	)
 }
 
 export default AuthenticateProvider
+export const useAuthenticate = ()=> useContext(Context)

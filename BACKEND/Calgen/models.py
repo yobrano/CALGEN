@@ -10,7 +10,6 @@ class FileCategory(models.Model):
     label = models.CharField(max_length= 250, unique= True)
     description = models.TextField()
 
-    
     def __str__(self): 
         return self.label
 
@@ -30,10 +29,10 @@ class FileManager(models.Model):
     def save(self, *args, **kwargs):
         if not self.code:
             # generate code for new file uploads
-            tkn = token_hex(10)
+            random_token = token_hex(10)
             self.name = self.upload.name
-            self.code = tkn
-            self.upload.name = tkn
+            self.code = random_token
+            self.upload.name = random_token
 
         else:
             # overwrite exiting uploads

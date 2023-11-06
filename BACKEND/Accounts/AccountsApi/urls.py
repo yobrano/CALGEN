@@ -11,3 +11,4 @@ generics_urls = [
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("logout/", LogoutView.as_view(), name= "LogoutView"),  
 ]
+

@@ -1,7 +1,10 @@
 from django.urls import path
+from django.shortcuts import get_object_or_404
 
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response as RestResponse
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 
 from Calgen import models
 from Calgen.CalgenApi import serializers
@@ -12,9 +15,16 @@ class FileManagerListCreate(generics.ListCreateAPIView):
     queryset = models.FileManager.objects.all()
     serializer_class = serializers.FileManagerSerializer
     permission_classes = [IsAuthenticated]
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data = request.data)
+        if(serializer.is_valid()):
+            serializer.save(user= request.user)
+            return RestResponse(serializer.data, status = HTTP_200_OK)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        return RestResponse(serializer.errors, status= HTTP_400_BAD_REQUEST)
+    
+
 
 class FileManagerDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FileManager.objects.all()
@@ -22,6 +32,14 @@ class FileManagerDetail(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = "code"
     lookup_url_kwarg = "file_code"
     permission_classes = [IsAuthenticated]
+
+    def get(self,  request, file_code):
+        file = get_object_or_404(self.queryset, code = file_code, user= request.user)
+        print(file.upload)
+        serializer = self.serializer_class(data = file)
+        return RestResponse(serializer.data, status= HTTP_200_OK)
+
+        
 
 
 
