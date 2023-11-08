@@ -33,11 +33,13 @@ class FileManager(models.Model):
             self.name = self.upload.name
             self.code = random_token
             self.upload.name = random_token
-
         else:
-            # overwrite exiting uploads
-            self.name = self.upload.name
-            self.upload.name = self.code
+            # overwrite exiting uploads.  
+            # Adminsite overrides the filename with a link to the file. check if its not a link
+            if("calgen/" not in self.upload.name):
+                self.name = self.upload.name
+                self.upload.name = self.code
+
         return super().save(*args, **kwargs)
             
     

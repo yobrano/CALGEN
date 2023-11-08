@@ -1,5 +1,8 @@
+import csv 
+
 from django.urls import path
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -34,9 +37,12 @@ class FileManagerDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self,  request, file_code):
-        file = get_object_or_404(self.queryset, code = file_code, user= request.user)
-        print(file.upload)
-        serializer = self.serializer_class(data = file)
+        file = get_object_or_404(self.queryset, code = file_code)
+        print(request.user)
+        serializer = serializers.FileManagerSerializer(file)
+        file_path = str(settings.BASE_DIR) + "/media/" + str(file.upload)
+        with open(file_path, "r") as csv_file:
+            list(csv.DictReader(csv_file))
         return RestResponse(serializer.data, status= HTTP_200_OK)
 
         
