@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { endpoints } from "../../utils/endpoints";
 import { useProtectedEndpoint } from "../../utils/useProtectedEndpoint";
 import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 function Dashboard() {
     // Hooks =====================
     const navigate = useNavigate();
@@ -38,7 +38,9 @@ function Dashboard() {
                         {uploads.map((upload, index) => 
 
                             <li key={index}>
-                                {upload.name}
+                                <Link to = "/table" state= {{code: upload.code}}>
+                                    {upload.name}
+                                </Link>
                             </li>
                         )}
                     </ul>

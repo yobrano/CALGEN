@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import {useProtectedEndpoint} from "../utils/useProtectedEndpoint"
-import {useSourceTableContext} from "@src-context/SourceTableContext"
+import {useSourceTable} from "@src-context/SourceTableContext"
 import {useSourceTableApi} from "@src-context/SourceTableApiContext"
 
 const TempApiContext = React.createContext()

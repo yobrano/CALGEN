@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 
 const TableContext = React.createContext()
 
-function SourceTableContext({ children }) {
+export default function SourceTableContext({ children }) {
 	const [table, setTable] = useState(null)
 	const [editRecordIdx, setEditRecordIdx] = useState(null)
 	const [customColumns, setCustomColumns] = useState([])
@@ -89,9 +89,9 @@ function SourceTableContext({ children }) {
 	)
 }
 
-export const useSourceTableContext = () => useContext(TableContext)
+export const useSourceTable = () => useContext(TableContext)
 
-export default SourceTableContext
+
 
 
 /*

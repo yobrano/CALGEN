@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useProtectedEndpoint } from "../utils/useProtectedEndpoint";
-import { useSourceTableContext } from "@src-context/SourceTableContext";
+import { useSourceTable } from "@src-context/SourceTableContext";
 import { endpoints } from "../utils/endpoints";
 
 export const TableApiContext = React.createContext();
@@ -8,7 +8,7 @@ export const TableApiContext = React.createContext();
 export default function SourceTableApiContext({ children }) {
     const [tableID, setTableID] = useState(null);
     const [tableName, setTableName] = useState(null);
-    const { populateTable, table } = useSourceTableContext();
+    const { populateTable, table } = useSourceTable();
     const api = useProtectedEndpoint();
 
     const uploadTable = (payload) => {
@@ -27,13 +27,13 @@ export default function SourceTableApiContext({ children }) {
             });
     };
 
-    const getTable = () => {
-        const endpoint = endpoints.detailedFileManagerURL();
+    const getTable = (fileCode) => {
+        const endpoint = endpoints.detailedFileManagerURL(fileCode);
         api.get(endpoint)
 
             .then((response) => {
-                populateTable(response.data.table);
-                setTableID(response.data.id);
+                populateTable(response.data.file_contents);
+                setTableID(response.data.code);
                 setTableName(response.data.name);
                 console.log("--- Get table successfully", response.data);
             })
