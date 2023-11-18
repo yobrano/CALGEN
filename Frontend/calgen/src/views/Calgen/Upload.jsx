@@ -15,10 +15,13 @@ export default function Upload() {
 
     // Handlers ================================
     const handleSelect = (event) => {
-        setSelectedFile((prev) => ({
-            ...prev,
-            upload: event.target.files[0],
-        }));
+        const file = event.target.files[0]
+        if(file.type === "text/csv"){
+            setSelectedFile((prev) => ({
+                ...prev,
+                upload: event.target.files[0],
+            }));
+        }
     };
 
     const handleUpload = (event) => {
@@ -31,7 +34,7 @@ export default function Upload() {
     return (
         <div>
             <form>
-                <input type="file" onChange={handleSelect} accept=".csv" />
+                <input type="file" onChange={handleSelect} accept=".csv" placeholder="upload file" />
 
                 {selectedFile.upload && (
                     <>

@@ -1,33 +1,17 @@
 import React, { useState } from "react";
-import {
-    TextField,
-    Box,
-    Divider,
-    Typography,
-    FormGroup,
-    FormControlLabel,
-    Switch,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    Button,
-    Grid,
-    TableBody,
-    IconButton,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-} from "@mui/material";
-import {
-    Edit as EditIcon,
-    Delete as DeleteIcon,
-    ExpandMore as ExpandMoreIcon,
-} from "@mui/icons-material";
+import { Box, Button, Divider, Grid } from "@mui/material";
 
-function KeysForm() {
+import KeyPropertiesForm from "./KeyFormComponents/KeyPropertiesForm";
+import FilterFieldForm from "./KeyFormComponents/FilterFieldForm";
+import AssignmentFieldForm from "./KeyFormComponents/AssignmentFieldForm";
+import FilterFieldAccordion from "./KeyFormComponents/FilterFieldAccordion";
+import AssingmentFieldAccordion from "./KeyFormComponents/AssingmentFieldAccordion";
+
+export default function KeysForm() {
+    // Hooks ====================
     const [expandedAccordion, setExpandedAccordion] = useState(false);
 
+    // Handlers ====================
     const handleAccordionExpand = (panel) => (event, isExpanded) => {
         setExpandedAccordion(isExpanded ? panel : false);
     };
@@ -37,8 +21,8 @@ function KeysForm() {
             <Grid container spacing={2}>
                 <Grid item xs={5}>
                     <KeyPropertiesForm />
-                    <AddFilterFieldForm />
-                    <AddAssignmentFieldForm />
+                    <FilterFieldForm />
+                    <AssignmentFieldForm />
                 </Grid>
 
                 <Grid item>
@@ -46,173 +30,24 @@ function KeysForm() {
                 </Grid>
 
                 <Grid item xs={6}>
-                    <FilterFieldAccordion
-                        expandedAccordion={expandedAccordion}
-                        handleAccordionExpand={handleAccordionExpand}
-                    />
+                    <Box sx={{display: "flex", flexDirection: "column"}}>
+                        <Box sx={{height: "74vh"}} >
+                            <FilterFieldAccordion
+                                expandedAccordion={expandedAccordion}
+                                handleAccordionExpand={handleAccordionExpand}
+                            />
 
-                    <AssingmentFieldAccordion
-                        expandedAccordion={expandedAccordion}
-                        handleAccordionExpand={handleAccordionExpand}
-                    />
+                            <AssingmentFieldAccordion
+                                expandedAccordion={expandedAccordion}
+                                handleAccordionExpand={handleAccordionExpand}
+                            />
+                        </Box>
+                        <Box sx={{display: "flex", flexDirection:"row-reverse", width: "38vw", mt:2 }}>
+                            <Button variant="contained" >Apply</Button>
+                        </Box>
+                    </Box>
                 </Grid>
             </Grid>
         </Box>
     );
 }
-
-export default KeysForm;
-
-const FilterFieldAccordion = ({ expandedAccordion, handleAccordionExpand }) => {
-    return (
-        <Accordion
-            sx={{ width: "38vw" }}
-            expanded={expandedAccordion === "filterFields"}
-            onChange={handleAccordionExpand("filterFields")}
-            elevation={0}
-            disableGutters
-        >
-            <AccordionSummary
-                sx={{ background: "#eeeeee" }}
-                expandIcon={<ExpandMoreIcon />}
-            >
-                <Typography>Filter Fields</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left">Field</TableCell>
-                            <TableCell align="left">value</TableCell>
-                            <TableCell align="left">Aciton</TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>Hello There This is a</TableCell>
-                            <TableCell>Hello There This is a</TableCell>
-                            <TableCell>
-                                <IconButton>
-                                    <EditIcon size="small" />
-                                </IconButton>
-                                <IconButton color={"error"}>
-                                    <DeleteIcon size="small" />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </AccordionDetails>
-        </Accordion>
-    );
-};
-
-const AssingmentFieldAccordion = ({
-    expandedAccordion,
-    handleAccordionExpand,
-}) => {
-    return (
-        <Accordion
-            sx={{ width: "38vw" }}
-            expanded={expandedAccordion === "assignFields"}
-            onChange={handleAccordionExpand("assignFields")}
-            elevation={0}
-            disableGutters
-        >
-            <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ background: "#eeeeee" }}
-            >
-                <Typography>Assigned Fields</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left">Field</TableCell>
-                            <TableCell align="left">value</TableCell>
-                            <TableCell align="left">Aciton</TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>Hello There This is a</TableCell>
-                            <TableCell>Hello There This is a</TableCell>
-                            <TableCell>
-                                <IconButton>
-                                    <EditIcon size="small" />
-                                </IconButton>
-                                <IconButton color={"error"}>
-                                    <DeleteIcon size="small" />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </AccordionDetails>
-        </Accordion>
-    );
-};
-
-const AddFilterFieldForm = () => {
-    return (
-        <FormGroup>
-            <Typography variant="h6"> Filter Fields </Typography>
-            <TextField
-                label="Filter Fields"
-                variant="standard"
-                sx={{ mr: 1, mb: 1.5 }}
-                required
-            />
-
-            <TextField
-                label="Filter Value"
-                variant="standard"
-                sx={{ mr: 1, mb: 1.5 }}
-                required
-            />
-            <Button vairant="contained"> Add </Button>
-        </FormGroup>
-    );
-};
-
-const AddAssignmentFieldForm = () => {
-    return (
-        <FormGroup>
-            <Typography variant="h6"> Assign Fields </Typography>
-
-            <TextField
-                label="Target Field"
-                variant="standard"
-                sx={{ mr: 1, mb: 1.5 }}
-                required
-            />
-
-            <TextField
-                label="Assign Value"
-                variant="standard"
-                sx={{ mr: 1, mb: 1.5 }}
-                required
-            />
-
-            <Button vairant="contained"> Add </Button>
-        </FormGroup>
-    );
-};
-
-const KeyPropertiesForm = () => {
-    return (
-        <FormGroup sx={{ mb: 1 }}>
-            <Typography variant="h6"> Keys Properties</Typography>
-            <FormControlLabel label="Is Primary Key" control={<Switch />} />
-            <TextField
-                label="Foreign Table"
-                variant="standard"
-                sx={{ mr: 1, mb: 1.5 }}
-                required
-            />
-        </FormGroup>
-    );
-};

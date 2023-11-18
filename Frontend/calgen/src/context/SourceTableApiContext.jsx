@@ -6,8 +6,8 @@ import { endpoints } from "../utils/endpoints";
 export const TableApiContext = React.createContext();
 
 export default function SourceTableApiContext({ children }) {
-    const [tableID, setTableID] = useState(null);
-    const [tableName, setTableName] = useState(null);
+    const [tableID, setTableID] = useState("");
+    const [tableName, setTableName] = useState("");
     const { populateTable, table } = useSourceTable();
     const api = useProtectedEndpoint();
 
@@ -35,11 +35,11 @@ export default function SourceTableApiContext({ children }) {
                 populateTable(response.data.file_contents);
                 setTableID(response.data.code);
                 setTableName(response.data.name);
-                console.log("--- Get table successfully", response.data);
+                console.log(response.data)
             })
 
             .catch((error) => {
-                console.error("--- Get Table Failed", error);
+                console.error("An error occured while getting table contents.", error);
             });
     };
 

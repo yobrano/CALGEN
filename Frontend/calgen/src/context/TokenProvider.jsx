@@ -37,7 +37,12 @@ export default function TokenProvider({children}) {
         setAuthTokens(JSON.parse(tokenString))
     }
 
-
+    const authTokenRemover = ()=>{
+        if(localStorage.getItem("authTokens")){
+            setAuthTokens({access: null, refresh: null})
+            localStorage.clear()
+        }
+    }
     // ---------------- Context Data  ----------------
     const data = {
         accessToken: authTokens.access,
@@ -47,6 +52,7 @@ export default function TokenProvider({children}) {
     const methods = {
         authTokenUpdateAndEmbed, 
         authTokenRetriever,
+        authTokenRemover,
     }
 
     return (
@@ -82,8 +88,6 @@ export const decryptData = (ciphertext, encryptionKey) => {
     }
 }
 
-
-
 // method for storing token.
 export const tokenEmbeder = (tokens)=>{
     const tokenString = JSON.stringify(tokens)
@@ -101,3 +105,5 @@ export const tokenRetrierver = ()=>{
         return null
     }
 }
+
+export const tokenErasor = ()=> localStorage.clear();

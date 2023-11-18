@@ -4,7 +4,7 @@ import CryptoJS from 'crypto-js';
 import { useNavigate } from 'react-router-dom';
 import { endpoints } from "./endpoints"
 import { jwtDecode } from 'jwt-decode'
-import { tokenRetrierver, tokenEmbeder } from '../context/TokenProvider';
+import { tokenRetrierver, tokenEmbeder, tokenErasor } from '../context/TokenProvider';
 import { useEffect, useState } from 'react';
 
 
@@ -18,17 +18,21 @@ export const api = axios.create({
 export function useProtectedEndpoint() {
     const navigate = useNavigate()
     const [authTokens, setAuthTokens] = useState(()=>  tokenRetrierver())
+    let accessTokenString = authTokens?.access   
+    const accessToken = accessTokenString && jwtDecode(accessTokenString)
+
+    // if not authenticated - use the normal api
     if(authTokens === null){
         return api
     }
-    var accessTokenString = authTokens.access   
-    const accessToken = jwtDecode(accessTokenString)
 
+    // if authenticated use portected endpoints
     api.interceptors.request.use((request) => {
         
         const expiryDate = dayjs.unix(accessToken.exp)
         const isExpired = expiryDate.diff( dayjs()) < 0
 
+        // if expired request a new token
         if(isExpired){
 
             const endpoint = endpoints.accountRefreshURL()
@@ -43,9 +47,13 @@ export function useProtectedEndpoint() {
             })
             .catch((error)=>{
                 console.error(error)
+                // tokenErasor()
+                // navigate("/login")
             })
             
         }
+
+        // Proceed with the authenticated tokken
         request.headers.Authorization = `Bearer ${accessTokenString}`
         return request
     })

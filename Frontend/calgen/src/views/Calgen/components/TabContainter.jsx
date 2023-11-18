@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
     Paper,
     Box,
@@ -18,17 +18,19 @@ import {
 
 import FieldForm from "./FieldForm";
 import KeysForm from "./KeysForm";
-import OthersForm from "./OthersForm";
+import BuildForm from "./BuildForm";
+import { useBackdropContext } from "./BackdropProvider";
 
-export default function TabContainter({ closeBackdrop }) {
-    const [activeTab, setActiveTab] = useState(0);
+
+export default function TabContainter() {
+    const { closeBackdrop, openTabNumber } = useBackdropContext()
+    const [activeTab, setActiveTab] = useState(openTabNumber);
 
     const handleTabSwitch = (event, selectedTab) => {
         console.log(event, selectedTab);
         setActiveTab(selectedTab);
 
     };
-
 
     useEffect(()=>{
         const handleEscape = (event)=> {
@@ -37,16 +39,20 @@ export default function TabContainter({ closeBackdrop }) {
             }
         }
         document.addEventListener("keydown", handleEscape )
-
         return ()=> {
             document.removeEventListener("keydown", handleEscape)
         }
     }, [])
+
+    useEffect(()=>{
+        setActiveTab(openTabNumber)
+    }, [openTabNumber])
+
     return (
         <Paper
             sx={{
-                width: 900,
-                height: 600,
+                width: 970,
+                height: 650,
             }}
         >
             <Box
@@ -77,7 +83,7 @@ export default function TabContainter({ closeBackdrop }) {
                     <KeysForm/>
                 </TabPanel>
                 <TabPanel index={2} value={activeTab}>
-                    <OthersForm/>
+                    <BuildForm/>
                 </TabPanel>
             </Box>
         </Paper>
@@ -135,3 +141,4 @@ const TabItems = () => {
         />
     ));
 };
+

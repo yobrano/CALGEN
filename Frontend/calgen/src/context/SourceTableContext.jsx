@@ -4,16 +4,11 @@ const TableContext = React.createContext()
 
 export default function SourceTableContext({ children }) {
 	const [table, setTable] = useState(null)
-	const [editRecordIdx, setEditRecordIdx] = useState(null)
 	const [customColumns, setCustomColumns] = useState([])
-
+	console.log("Refreshed")
 
 	//  Record Methods  ------------------------ 
-	const setEditingStatus = (recordIdx)=>{
-		setEditRecordIdx(recordIdx)
-	}
-
-	const saveNewReacord = (record, insertIdx)=>{
+	const createRecord = (record, insertIdx)=>{
 		let temp = [...table]
 		if(insertIdx === undefined){
 			temp.unshift(record)
@@ -23,11 +18,10 @@ export default function SourceTableContext({ children }) {
 		setTable([...temp])
 	}
 
-	const saveRecordChanges = (record, recordIdx) =>{
+	const editRecord = (recordIdx, recordDetails) =>{
 		let temp = [...table]
-		temp[recordIdx] = record
+		temp[recordIdx] = {...temp[recordIdx], ...recordDetails }
 		setTable([...temp])
-		setEditRecordIdx(null)
 	}
 
 	const deleteRecord = (recordIdx) =>{
@@ -60,22 +54,19 @@ export default function SourceTableContext({ children }) {
 
 	const populateTable = (tableData) =>{
 		setTable(tableData)
-		setEditRecordIdx(null)
 		setCustomColumns([])
 	}
 	// Context Propterties ------------------------
 	const contextData = {
 		table,
-		editRecordIdx,
 		customColumns,
 	}
 
 	const contextMethods = {
 		//  Record Functions
 		populateTable,
-		setEditingStatus,
-		saveNewReacord,
-		saveRecordChanges, 
+		createRecord,
+		editRecord, 
 		deleteRecord,
 
 		//  Columns Functions
@@ -90,11 +81,3 @@ export default function SourceTableContext({ children }) {
 }
 
 export const useSourceTable = () => useContext(TableContext)
-
-
-
-
-/*
-	NOTES: 
-	- Use the react-table library for changing visibility of columns and thier orderling.
-*/ 

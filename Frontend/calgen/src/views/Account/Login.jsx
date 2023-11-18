@@ -1,21 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Container, TextField, Paper, Typography, Button } from '@mui/material'
 
 import {useAuthenticate} from "../../context/AuthenticateProvider"
 import { useNavigate } from 'react-router-dom'
 
 function Login() {
-	const {login} = useAuthenticate()
+	// Hooks ================
+	const {login, isAuthenticated} = useAuthenticate()
 	const navigate = useNavigate()
-
-	const [ userCredentials, setUserCredentials ] = useState({username: "", password: ""})
 	
-	// Handlers
+	const [ userCredentials, setUserCredentials ] = useState({username: "", password: ""})
+
+	// Effects ================
+	useEffect(() => {
+	  if(isAuthenticated()){
+		navigate("/dashboard")
+	  }
+	}, [])
+	
+	
+	// Handlers ================
 	const userCredentialsHandler = (fieldData)=> setUserCredentials({...userCredentials, ...fieldData})
 	const submissionHandler = (event) => {
 		event.preventDefault()
 		login(userCredentials)
-		navigate("/", {state: {msg: "success"}})
 	}
 
 	return (

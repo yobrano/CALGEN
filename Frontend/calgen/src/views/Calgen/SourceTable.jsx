@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-import { Box, Button, Container, Backdrop, Grid } from "@mui/material";
+import { Box, Button, Container, Backdrop, Grid, selectClasses } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
     Build as BuildIcon,
@@ -16,34 +16,55 @@ import { useSourceTableApi } from "../../context/SourceTableApiContext";
 import { useSourceTable } from "../../context/SourceTableContext";
 
 import TabContainter from "./components/TabContainter";
+import BackdropProvider from "./components/BackdropProvider";
 
 export default function SourceTable() {
     // Hooks =========================
     const loc = useLocation();
     const api = useProtectedEndpoint();
-    const {getTable} = useSourceTableApi()
-    const {table} =  useSourceTable()
+    const { getTable } = useSourceTableApi();
+    const { table } = useSourceTable();
+
+    const [openTabNumber, setOpenTabNumber] = useState(0);
     const [selectedRows, setSelectedRows] = useState([]);
-    const [tableContents, setTableContents] = useState(null);
+    const [selected, setselected] = useState(null);
     const [openBackdrop, setOpenBackdrop] = useState(false);
 
     // Effects =========================
     useEffect(() => {
         const code = loc.state.code;
-        getTable(code)
-        
+        getTable(code);
     }, []);
 
     // Handlers =========================
-    const handleCloseBackdrop = () => setOpenBackdrop(false);
-    const handleRowDoubleClick = (params) => {
+    const handleBuild = (event) => {
+        setOpenTabNumber(2);
         setOpenBackdrop(true);
-        console.log(params);
+    };
+    const handleUpload = (event) => {};
+    const handleDropTable = (event) => {};
+
+    const handleCloseBackdrop = (event) => {
+        setOpenTabNumber(0);
+        setOpenBackdrop(false);
+
+        let temp = [...selectedRows]
+        temp.pop()
+        setSelectedRows(temp)
+    };
+
+    const handleRowDoubleClick = (params) => {
+        console.log("some....", params, selectedRows);
+        setOpenTabNumber(1);
+        setOpenBackdrop(true);
+        setSelectedRows([...selectedRows, params.id])
     };
     const handleSelection = (ids) => {
+        console.log(ids)
         setSelectedRows(ids);
     };
-    const handleDeleteRows = () => console.log(selectedRows);
+    
+    const handleDeleteRows = (event) => console.log(selectedRows);
 
     return (
         <Container>
@@ -56,8 +77,15 @@ export default function SourceTable() {
                         }}
                         open={openBackdrop}
                     >
-                        <TabContainter closeBackdrop={handleCloseBackdrop} />
+                        <BackdropProvider
+                            closeBackdrop={handleCloseBackdrop}
+                            openTabNumber={openTabNumber}
+                            selectedRows={selectedRows}
+                        >
+                            <TabContainter />
+                        </BackdropProvider>
                     </Backdrop>
+
                     <Grid spacing={2} container>
                         <Grid sm={12} md={9} item>
                             <DataTable
@@ -69,7 +97,13 @@ export default function SourceTable() {
                             />
                         </Grid>
                         <Grid xs={3} item>
-                            <SideButtons />
+                            <SideButtons
+                                {...{
+                                    handleBuild,
+                                    handleUpload,
+                                    handleDropTable,
+                                }}
+                            />
                         </Grid>
                     </Grid>
                 </>
@@ -135,8 +169,7 @@ const DataTable = ({
     );
 };
 
-const SideButtons = () => {
-    console.log("U F*cked.");
+const SideButtons = ({ handleBuild, handleUpload, handleDropTable }) => {
     return (
         <Box
             sx={{
@@ -154,14 +187,23 @@ const SideButtons = () => {
                     height: "10rem",
                 }}
             >
-                <Button variant="contained" startIcon={<BuildIcon />}>
+                <Button
+                    variant="contained"
+                    onClick={handleBuild}
+                    startIcon={<BuildIcon />}
+                >
                     Build
                 </Button>
-                <Button variant="contained" startIcon={<UploadIcon />}>
+                <Button
+                    variant="contained"
+                    onClick={handleUpload}
+                    startIcon={<UploadIcon />}
+                >
                     Upload
                 </Button>
                 <Button
                     variant="contained"
+                    onClick={handleDropTable}
                     color="error"
                     startIcon={<DeleteIcon />}
                 >

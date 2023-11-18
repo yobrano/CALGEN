@@ -1,50 +1,64 @@
-import React, { useContext } from 'react'
-import { useTokenContext } from "./TokenProvider"
-import { endpoints }from "../utils/endpoints"
-import { api } from "../utils/useProtectedEndpoint"
+import React, { useContext } from "react";
+import { useTokenContext } from "./TokenProvider";
+import { endpoints } from "../utils/endpoints";
+import { api } from "../utils/useProtectedEndpoint";
 
-const Context = React.createContext()
+const Context = React.createContext();
 
 function AuthenticateProvider({ children }) {
-	const { accessToken, authTokenUpdateAndEmbed } = useTokenContext()
-	// ------------- Datasets -------------
+    const { accessToken, refreshToken, authTokenUpdateAndEmbed, authTokenRemover } =
+        useTokenContext();
+    // ------------- Datasets -------------
 
-	// ------------- Methods -------------
-	const login = (payload) => {
-		const endpoint = endpoints.accountLoginURL()
-		api.post(endpoint, payload )
-		.then((response)=>{
-			authTokenUpdateAndEmbed(response.data)
-		})
-	}
-	const logout = () => {
+    // ------------- Methods -------------
+    const login = (payload) => {
+        const endpoint = endpoints.accountLoginURL();
+        api.post(endpoint, payload)
+		.then((response) => {
+            authTokenUpdateAndEmbed(response.data);
+			navigate("/dashboard", {state: {msg: "success"}})
 
-	}
+        });
+    };
 
-	const createAccount = () => {
+    const logout = () => {
+        const endpoint = endpoints.accountLogoutURL();
+        const payload = { refresh_token: refreshToken };
+        api.post(endpoint, payload)
+            .then((response) => {
+				console.log(accessToken)
+				if(response.status === 205){
+					authTokenRemover()
+				}
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
 
-	}
+    const createAccount = () => {};
 
-	const isAuthenticated = () => {
-		console.log(accessToken)
-		return accessToken !== null
-	}
-	
-	// ------------- Provider Assignment -------------
-	const data = {
+    const isAuthenticated = () => {
+        console.log(accessToken);
+        return accessToken !== null;
+    };
 
-	}
+    // ------------- Provider Assignment -------------
+    const data = {};
 
-	const methods = {
-		login, logout, createAccount, isAuthenticated
-	}
+    const methods = {
+        login,
+        logout,
+        createAccount,
+        isAuthenticated,
+    };
 
-	return (
-		<Context.Provider value={{ ...data, ...methods }}>
-			{children}
-		</Context.Provider>
-	)
+    return (
+        <Context.Provider value={{ ...data, ...methods }}>
+            {children}
+        </Context.Provider>
+    );
 }
 
-export default AuthenticateProvider
-export const useAuthenticate = ()=> useContext(Context)
+export default AuthenticateProvider;
+export const useAuthenticate = () => useContext(Context);

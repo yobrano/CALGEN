@@ -1,27 +1,24 @@
-import { Box } from '@mui/material'
-import React from 'react'
+import { Box } from "@mui/material";
+import React from "react";
 
-function FieldForm() {
-  return (
-    <>
-            
-    </>
-  )
+function FieldForm({ fieldID }) {
+    console.log(fieldID);
+    return <></>;
 }
 
-export default FieldForm
+export default FieldForm;
 
 const emptyField = {
-    "Enabled": "Yes",
-    "id": null,
+    Enabled: "Yes",
+    id: null,
     "Field Name": "",
-    "Caption": "",
+    Caption: "",
     "Data Type": "Integer",
     "Primary Key": "",
     "Foreign Key": "",
     "Retained Fields": false,
-    "Length": null,
-    "Description": "",
+    Length: null,
+    Description: "",
     "Field Class": "Normal",
-    "Option String": ""
-}
+    "Option String": "",
+};
