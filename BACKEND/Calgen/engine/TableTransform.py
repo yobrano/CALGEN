@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
-from module.ForeignKeyReference import ForeignKeyReference as FKReference
-from module.TemplatesFns import NameSyntax
-
+from Calgen.engine.ForeignKeyReference import ForeignKeyReference as FKReference
+from Calgen.engine.TemplatesFns import NameSyntax
 
 class FeaturesGenerator:
     importantCols: list[str]
@@ -22,14 +21,8 @@ class FeaturesGenerator:
 
     def setImportantCols(self, columns: list[str] | None) -> pd.DataFrame:
         # User should ensure all important cols are in the src DF - not doing exceptions
-        importantColumns = [
-            "Field Name",
-            "Retained Field",
-            "Primary Key",
-            "Foreign Key",
-            "Data Type",
-            "Option String",
-        ]
+        from Calgen.engine.config import importantColumns
+
         self.importantCols = importantColumns
         if (columns != None):
             importantColumns = [*importantColumns, *columns]

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function Upload() {
     // Hooks ================================
     const navigate = useNavigate();
-    const { uploadTable } = useSourceTableApi();
+    const { uploadTable, getTableList } = useSourceTableApi();
 
     // States ================================
     const [selectedFile, setSelectedFile] = useState({
@@ -26,9 +26,13 @@ export default function Upload() {
 
     const handleUpload = (event) => {
         event.preventDefault();
-        console.log(selectedFile)
         uploadTable(selectedFile);
-        // navigate("/build");
+        setSelectedFile({
+            upload: null,
+            category: 1,
+        })
+        
+        
     };
 
     return (
@@ -39,15 +43,16 @@ export default function Upload() {
                 {selectedFile.upload && (
                     <>
                         <br />
-                        <strong>NAME: </strong>
+                        <i>NAME: </i>
                         {selectedFile.upload.name}
                         <br />
-                        <strong>SIZE: </strong>
+                        <i>SIZE: </i>
                         {selectedFile.upload.size} Bytes
                         <br />
-                        <strong>TYPE: </strong>
+                        <i>TYPE: </i>
                         {selectedFile.upload.type}
                         <br />
+                        
                         <button type="submit" onClick={handleUpload}>
                             Upload
                         </button>

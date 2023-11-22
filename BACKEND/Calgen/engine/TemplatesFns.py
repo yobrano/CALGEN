@@ -1,5 +1,5 @@
 import string
-from module.CodeContainer import CodeContainer as codeBlocks
+from Calgen.engine.CodeContainer import CodeContainer as codeBlocks
 
 
 class NameSyntax:

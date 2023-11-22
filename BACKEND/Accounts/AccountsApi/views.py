@@ -1,4 +1,5 @@
-from django.urls import path
+from django.contrib.auth import logout
+
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,6 +17,7 @@ class LogoutView(APIView):
             refresh_token = request.data["refresh_token"]
             token = RefreshToken(refresh_token)
             token.blacklist()
+            logout(request)
             return RestResponse(status=status.HTTP_205_RESET_CONTENT)
             
         except Exception as e:

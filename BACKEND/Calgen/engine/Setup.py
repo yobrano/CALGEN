@@ -3,13 +3,14 @@ import numpy as np
 import json
 import os
 
-from Calgen.engine.TemplatesFns import NameSyntax, CALSerializer
 from Calgen.engine.TableTransform import FeaturesGenerator
 from Calgen.engine.CodeContainer import CodeContainer
 from zipfile import ZipFile
+from Calgen.engine.config import templates_dir, defualt_templates, build_options, templates_util_functions
 
 # --------------------------- Read in the source table. ---------------------------
 def getSourceDF(filePath) -> pd.DataFrame | None:
+    # handle for some thing like missing missing files.
     return pd.read_csv(filePath)
 
 # --------------------------- Read in settings. ---------------------------
@@ -34,44 +35,27 @@ def getSettings(filePath) -> pd.DataFrame | None:
         return None
 
     # convert json Content to a data frame
-    if type(jsonContent) == list:
+    settings = None
+    if isinstance(jsonContent, list):
         settings = pd.DataFrame(jsonContent)
-    elif type(jsonContent) == dict:
+    elif isinstance(jsonContent, dict):
         settings = pd.DataFrame(jsonContent, index=[0])
 
-    expectedOptions = [
-        "tableName",
-        "tableFilePath",
-        "outputDir",
-        "inputType",
-        "customTemplates",
-        "customFields",
-        "zipResponse"
-    ]
-    for opt in expectedOptions:
+
+    for opt in build_options:
         if opt not in settings.columns:
             settings[opt] = np.nan
 
     return settings
 # --------------------------- Generates CRUD and custom functions ---------------------------
-
-
-def Generate(settingsRow: pd.Series):
+def Generate(settingsRow:dict ):
+    settingsRow= pd.Series(settingsRow)
     df = getSourceDF(settingsRow["tableFilePath"])
-    customCols = settingsRow["customFields"] if (
-        type(settingsRow["customFields"]) == list)else ([])
+    customCols = settingsRow["customFields"] if (isinstance(settingsRow["customFields"], list))else ([])
     df = FeaturesGenerator(df, importantCols=[*customCols]).getDF()
-
+    
     params = {
-        "functions": {
-            "toJSONVarName": NameSyntax.toJSONVarName,
-            "toCALVarName": NameSyntax.toCALVarName,
-            "CalSerializer": CALSerializer,
-            "zip": zip,
-            "str": str,
-            "type": type,
-            "enumerate": enumerate,
-        },
+        "functions": templates_util_functions,
         "variables": {
             "table": df,
             "tableName": settingsRow["tableName"],
@@ -80,29 +64,19 @@ def Generate(settingsRow: pd.Series):
         }
     }
 
-    templates = [
-        "Create Item.j2",
-        "Get Item.j2",
-        "Get Range.j2",
-        "Update Item.j2",
-        "Delete Item.j2",
-        "Serializer.j2",
-    ]
-
-    if (type(settingsRow["customTemplates"]) == list):
-        templates = [*templates, *settingsRow["customTemplates"]]
+    if (isinstance(settingsRow["customTemplates"], list)):
+        templates = [*defualt_templates, *settingsRow["customTemplates"]]
 
     outputs = []
+    temp_dir = str(templates_dir)
     res = {}
-
     for template in templates:
         codeBlocks = CodeContainer()
-        if ((type(settingsRow["customTemplates"]) == list) and (template in settingsRow["customTemplates"])):
+        if (isinstance(settingsRow["customTemplates"], list) and (template in settingsRow["customTemplates"])):
             template = f"customs/{template}"
 
-        codeBlocks.readTemplate(["templates", template], params)
-        fileName = settingsRow["outputDir"] + \
-            f"/{template.replace('.j2', '.txt')}"
+        codeBlocks.readTemplate([temp_dir, template], params)
+        fileName = settingsRow["outputDir"] +  f"/{template.replace('.j2', '.txt')}"
         codeBlocks.writeCodeBlocks(fileName)
 
         res[template] = codeBlocks.getCodeBlock()
@@ -125,6 +99,6 @@ def Generate(settingsRow: pd.Series):
                 zipf.write(output)
 
         os.chdir("../" * len(settingsRow["outputDir"].split("/")))
-        res["zipFile"] = settingsRow["outputDir"] + "/" + \
-            fileName  # ./upload/file_code/file_name/ file_name.zip
+        res["zipFile"] = settingsRow["outputDir"] + "/" + fileName  
+        # ./upload/file_code/file_name/ file_name.zip
     return res

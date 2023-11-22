@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { Box, Button, Container, Backdrop, Grid, selectClasses } from "@mui/material";
+import { Box, Button, Container, Backdrop, Grid, IconButton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
     Build as BuildIcon,
     Delete as DeleteIcon,
     Edit as EditIcon,
+    Home,
     Upload as UploadIcon,
 } from "@mui/icons-material";
 
 import { useProtectedEndpoint } from "../../utils/useProtectedEndpoint";
-import { endpoints } from "../../utils/endpoints";
 import { useSourceTableApi } from "../../context/SourceTableApiContext";
 import { useSourceTable } from "../../context/SourceTableContext";
 
@@ -20,28 +20,56 @@ import BackdropProvider from "./components/BackdropProvider";
 
 export default function SourceTable() {
     // Hooks =========================
-    const loc = useLocation();
+    const navigate = useNavigate()
+    const location = useLocation();
+
     const api = useProtectedEndpoint();
-    const { getTable } = useSourceTableApi();
+    const { getTable, updateTable } = useSourceTableApi();
     const { table } = useSourceTable();
 
     const [openTabNumber, setOpenTabNumber] = useState(0);
     const [selectedRows, setSelectedRows] = useState([]);
-    const [selected, setselected] = useState(null);
     const [openBackdrop, setOpenBackdrop] = useState(false);
 
     // Effects =========================
     useEffect(() => {
-        const code = loc.state.code;
+        const code = location.state.code;
+        const action = location.state.action
         getTable(code);
+
+        switch(action){
+            case "form": 
+                setOpenTabNumber(0)
+                setOpenBackdrop(true)
+                break;
+            case "keys": 
+                setOpenTabNumber(1)
+                setOpenBackdrop(true)
+                break;
+            case "build": 
+                setOpenTabNumber(2)
+                setOpenBackdrop(true)
+                break;
+            default: 
+                setOpenTabNumber(0)
+                setOpenBackdrop(false)
+                break;
+        }
+
     }, []);
 
     // Handlers =========================
+    const handleHomeClick = (event) =>{
+        navigate("/dashboard")
+    }
+    
     const handleBuild = (event) => {
         setOpenTabNumber(2);
         setOpenBackdrop(true);
     };
-    const handleUpload = (event) => {};
+    const handleUpload = (event) => {
+        updateTable()
+    };
     const handleDropTable = (event) => {};
 
     const handleCloseBackdrop = (event) => {
@@ -54,7 +82,6 @@ export default function SourceTable() {
     };
 
     const handleRowDoubleClick = (params) => {
-        console.log("some....", params, selectedRows);
         setOpenTabNumber(1);
         setOpenBackdrop(true);
         setSelectedRows([...selectedRows, params.id])
@@ -68,6 +95,11 @@ export default function SourceTable() {
 
     return (
         <Container>
+            <Box sx={{display: "flex", flexDirection:"row-reverse"}} >
+            <IconButton color="primary" onClick={(event)=>handleHomeClick(event)} >
+                <Home/>
+            </IconButton>
+            </Box>
             {table ? (
                 <>
                     <Backdrop
@@ -121,7 +153,7 @@ const DataTable = ({
     selectedRows,
     handleSelection,
 }) => {
-    const paginationSize = 10;
+    const paginationSize = 15;
 
     return (
         <>
@@ -235,8 +267,8 @@ const columns = [
         width: 110,
     },
     {
-        field: "Retained Fields",
-        headerName: "Retained Fields",
+        field: "Retained Field",
+        headerName: "Retained Field",
         width: 110,
     },
     // {field:"Length", headerName: "Length",  width: 110},

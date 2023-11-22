@@ -36,7 +36,7 @@ export default function FilterFieldAccordion({
         deleteFilterField(index);
         console.log("delete");
     };
-    console.log(filterFields.length)
+
     const handleRowEditStyle = (index) => ({
         borderRadius: index === editRow.filterField ? "5px" : null,
         boxShadow:

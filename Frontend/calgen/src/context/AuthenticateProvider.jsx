@@ -2,12 +2,14 @@ import React, { useContext } from "react";
 import { useTokenContext } from "./TokenProvider";
 import { endpoints } from "../utils/endpoints";
 import { api } from "../utils/useProtectedEndpoint";
+import { useNavigate } from "react-router-dom";
 
 const Context = React.createContext();
 
 function AuthenticateProvider({ children }) {
     const { accessToken, refreshToken, authTokenUpdateAndEmbed, authTokenRemover } =
         useTokenContext();
+    const navigate = useNavigate()
     // ------------- Datasets -------------
 
     // ------------- Methods -------------

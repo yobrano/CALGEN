@@ -1,5 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useSourceTable } from "../../../context/SourceTableContext";
+import _ from "lodash";
+import { useSourceTableApi } from "../../../context/SourceTableApiContext";
 
 const BackdropContext = React.createContext();
 
@@ -12,105 +14,42 @@ export default function BackdropProvider({ children, ...others }) {
      */
 
     // Hooks ==============
-    const { selectedRows } = others;
-    const [assignFields, setAssignFields] = useState([
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "sdf",
-            "value": "asdf"
-        }
-    ]);
-    const [filterFields, setFilterFields] = useState([
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "asdf",
-            "value": "asdf"
-        },
-        {
-            "field": "sdf",
-            "value": "asdf"
-        }
-    ]);
+
     const [isPrimaryKey, setIsPrimaryKey] = useState(false);
     const [foreignKeyTable, setForeignKeyTable] = useState("");
+    const [filterFields, setFilterFields] = useState([]);
+    const [assignFields, setAssignFields] = useState([]);
 
     const [editRow, setEditRow] = useState({
         filterField: null,
         assignField: null,
     });
-    const { table } = useSourceTable();
+
+    const { selectedRows, closeBackdrop } = others;
+    const { table, editRecord, genFKAttributes } = useSourceTable();
+    const { updateTable } = useSourceTableApi();
+    
+    // Effects
+    useEffect(() => {
+        let selectedRow = selectedRows.at(-1);
+        selectedRow = _.find(table, { id: selectedRow });
+        if (selectedRow !== undefined) {
+            setAssignFields(selectedRow.keysData.assignFields);
+            setFilterFields(selectedRow.keysData.filterFields);
+            setForeignKeyTable(selectedRow.keysData.foreignKeyTable)
+            setIsPrimaryKey(Boolean(selectedRow["Primary Key"]))
+            console.log("HELLO ", Boolean(selectedRow["Primary Key"]))
+        }
+    }, [selectedRows]);
 
     // Methods ==============
-    // ============== Assignment Methods ==============
-    const createAssignmentField = (fieldDetails) => {
-        // commit changes to the local list
-        setAssignFields([fieldDetails, ...assignFields]);
-        // commit changes to parent list.
-
-        console.log([fieldDetails, ...assignFields]);
+    // ============== Key properties ==============
+    const tooglePrimayKey = () => {
+        setIsPrimaryKey((prev) => !prev);
     };
 
-    const editAssignmentField = (fieldId, fieldDetails) => {
-        let temp = [...assignFields];
-        temp[fieldId] = fieldDetails;
-        // temp.splice(fieldId, 1, fieldDetails) // *** fancy
-        setAssignFields(temp);
-    };
-
-    const deleteAssignmentField = (fieldId) => {
-        let temp = [...assignFields];
-        temp.splice(fieldId, 1); // Don't use delete.
-        setAssignFields(temp);
+    const handleForeignKeyTable = (tableName) => {
+        setForeignKeyTable(tableName);
     };
 
     // ============== Filter Methods ==============
@@ -130,22 +69,48 @@ export default function BackdropProvider({ children, ...others }) {
         setFilterFields(temp);
     };
 
-    // ============== Key properties ==============
-    const tooglePrimayKey = () => {
-        setIsPrimaryKey((prev) => !prev);
+    // ============== Assignment Methods ==============
+    const createAssignmentField = (fieldDetails) => {
+        // commit changes to the local list
+        setAssignFields([fieldDetails, ...assignFields]);
+        // commit changes to parent list.
     };
 
-    const handleForeignKeyTable = (tableName) => {
-        setForeignKeyTable(tableName);
+    const editAssignmentField = (fieldId, fieldDetails) => {
+        let temp = [...assignFields];
+        temp[fieldId] = fieldDetails;
+        // temp.splice(fieldId, 1, fieldDetails) // *** fancy
+        setAssignFields(temp);
     };
+
+    const deleteAssignmentField = (fieldId) => {
+        let temp = [...assignFields];
+        temp.splice(fieldId, 1); // Don't use delete.
+        setAssignFields(temp);
+    };
+
     // ============== Other Methods ==============
     const listEditMode = (listIndex) => {
         setEditRow({ ...editRow, ...listIndex });
     };
 
-    const handleApplyChanges = ()=>{
-        console.log("Applying Changes ....")
-    }
+    const applyRecordChanges = () => {
+        const FKAttirbutes = genFKAttributes(
+            foreignKeyTable,
+            filterFields,
+            assignFields
+        );
+        console.log(FKAttirbutes);
+
+        const selectedRow = selectedRows.at(-1);
+        const recordIndex = _.findIndex(table, { id: selectedRow });
+        editRecord(recordIndex, {
+            "Foreign Key": FKAttirbutes,
+            keysData: {foreignKeyTable, filterFields, assignFields, },
+            "Primary Key": isPrimaryKey ? "yes" : null,
+        });
+        closeBackdrop()
+    };
     // Context Loading ==============
     const contextData = {
         assignFields,
@@ -154,7 +119,7 @@ export default function BackdropProvider({ children, ...others }) {
         isPrimaryKey,
         foreignKeyTable,
     };
-    
+
     const contextMethods = {
         // Assignment Fields
         createAssignmentField,
@@ -168,10 +133,10 @@ export default function BackdropProvider({ children, ...others }) {
 
         tooglePrimayKey,
         handleForeignKeyTable,
-        
+
         // Others
         listEditMode,
-        handleApplyChanges,
+        applyRecordChanges,
     };
 
     return (
@@ -184,3 +149,6 @@ export default function BackdropProvider({ children, ...others }) {
 }
 
 export const useBackdropContext = () => useContext(BackdropContext);
+
+
+

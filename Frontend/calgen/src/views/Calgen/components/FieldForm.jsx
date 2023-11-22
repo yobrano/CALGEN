@@ -1,9 +1,21 @@
-import { Box } from "@mui/material";
+import { Button } from "@mui/material";
 import React from "react";
+import { useBackdropContext } from "./BackdropProvider";
 
-function FieldForm({ fieldID }) {
-    console.log(fieldID);
-    return <></>;
+function FieldForm() {
+    const {applyRecordChanges} = useBackdropContext()
+
+    const handleApplyClick = (event) =>{
+        applyRecordChanges()
+    }   
+    
+    return (
+        <>
+            <Button variant="contained" onClick={handleApplyClick}>
+                Apply
+            </Button>
+        </>
+    );
 }
 
 export default FieldForm;

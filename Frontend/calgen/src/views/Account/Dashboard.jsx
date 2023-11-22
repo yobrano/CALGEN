@@ -1,63 +1,128 @@
 import React, { useEffect, useState } from "react";
-import { endpoints } from "../../utils/endpoints";
 import { useProtectedEndpoint } from "../../utils/useProtectedEndpoint";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { Backdrop } from "@mui/material";
+import {
+    Backdrop,
+    Button,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Typography,
+    Container,
+    Box,
+    ListItemSecondaryAction,
+    IconButton,
+    Tooltip,
+} from "@mui/material";
 import Logout from "./Logout";
 import Upload from "../Calgen/Upload";
+import { useSourceTableApi } from "../../context/SourceTableApiContext";
+import { useSourceTable } from "../../context/SourceTableContext";
+import { Build } from "@mui/icons-material";
 function Dashboard() {
     // Hooks =====================
     const navigate = useNavigate();
-    const [uploads, setUploads] = useState(null);
-    const [open, setOpen] = useState(false)
-    const api = useProtectedEndpoint();
+    const [openLogout, setOpenLogout] = useState(false);
+
+    const { getTableList } = useSourceTableApi();
+    const { tableList } = useSourceTable();
 
     // Effects =====================
     useEffect(() => {
-        // get table data
-        const endpoint = endpoints.fileManagerURL();
-        api.get(endpoint)
-            .then((response) => {
-                setUploads(response.data);
-                console.log(response.data);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        getTableList();
     }, []);
 
     // Handlers =====================
     const handleCalgenClick = (event) => navigate("/upload");
-    const handleLogoutClick = (event) => setOpen((prev)=>!prev)
+    const handleLogoutClick = (event) => setOpenLogout((prev) => !prev);
+    const handleTableClick = (event, code) => {
+        navigate("/table", { state: { code } });
+    };
+    const handleBuildClick = (event, code) => {
+        navigate("/table", { state: { code, action: "build" } });
+    };
     return (
         <div>
-            {uploads ? (
+            {tableList ? (
                 <>
                     <Backdrop
-                        open={open}
+                        open={openLogout}
                         sx={{
                             color: "#fff",
                             zIndex: (theme) => theme.zIndex.drawer + 1,
                         }}
-                        >
-                        <Logout handleCancel={handleLogoutClick}  />
+                    >
+                        <Logout handleCancel={handleLogoutClick} />
                     </Backdrop>
 
-                    <button onClick={handleLogoutClick} >Logout</button>
-                    
-                    <ul>
-                        {uploads.map((upload, index) => 
+                    <Box>
+                        <Container>
+                            <Typography variant="h4">
+                                Uploaded Tables ...
+                            </Typography>
 
-                            <li key={index}>
-                                <Link to = "/table" state= {{code: upload.code}}>
-                                    {upload.name}
-                                </Link>
-                            </li>
-                        )}
-                    </ul>
+                            {tableList.length ? (
+                                <List>
+                                    {tableList.map((item, index) => (
+                                        <ListItem key={index} disableGutters>
+                                            <ListItemButton
+                                                onClick={(event) =>
+                                                    handleTableClick(
+                                                        event,
+                                                        item.code
+                                                    )
+                                                }
+                                            >
+                                                <ListItemText>
+                                                    <Typography>
+                                                        {item.name}
+                                                    </Typography>
+                                                </ListItemText>
 
-                    <Upload/>
+                                                <ListItemSecondaryAction>
+                                                    <Tooltip
+                                                        title="Build"
+                                                        placement="left"
+                                                    >
+                                                        <IconButton
+                                                            color="primary"
+                                                            onClick={(event) =>
+                                                                handleBuildClick(
+                                                                    event,
+                                                                    item.code
+                                                                )
+                                                            }
+                                                        >
+                                                            <Build size="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </ListItemSecondaryAction>
+                                            </ListItemButton>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            ) : (
+                                <Container>
+                                    <Typography>
+                                        There are no items to display at the
+                                        moment.
+                                    </Typography>
+                                </Container>
+                            )}
+                        </Container>
+                    </Box>
+                    <Box>
+                        <Button
+                            onClick={handleLogoutClick}
+                            variant="contained"
+                            color="warning"
+                        >
+                            Logout
+                        </Button>
+                        <Upload />
+                    </Box>
                 </>
             ) : (
                 <>Loading...</>

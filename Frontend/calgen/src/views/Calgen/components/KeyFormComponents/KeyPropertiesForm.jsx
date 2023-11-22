@@ -30,7 +30,7 @@ export default function KeyPropertiesForm({}) {
                     tooglePrimayKey();
                 }}
                 value={isPrimaryKey}
-                control={<Switch />}
+                control={<Switch defaultChecked={isPrimaryKey} />}
             />
             <TextField
                 value={foreignKeyTable}

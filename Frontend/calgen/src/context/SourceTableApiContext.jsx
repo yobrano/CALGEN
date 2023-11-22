@@ -1,17 +1,22 @@
 import React, { useContext, useState } from "react";
 import { useProtectedEndpoint } from "../utils/useProtectedEndpoint";
-import { useSourceTable } from "@src-context/SourceTableContext";
+import { useSourceTable } from "./SourceTableContext";
 import { endpoints } from "../utils/endpoints";
+import { useNavigate } from "react-router-dom";
 
 export const TableApiContext = React.createContext();
 
 export default function SourceTableApiContext({ children }) {
     const [tableID, setTableID] = useState("");
     const [tableName, setTableName] = useState("");
-    const { populateTable, table } = useSourceTable();
+
+    const [uploads, setUploads] = useState(null);
+    const navigate = useNavigate()
+
+    const { populateTable, populateTableList, table } = useSourceTable();
     const api = useProtectedEndpoint();
 
-    const uploadTable = (payload) => {
+    const uploadTable = (payload, callback) => {
         const endpoint = endpoints.fileManagerURL();
         api.post(endpoint, payload, {
             headers: { "Content-Type": "multipart/form-data" },
@@ -19,7 +24,7 @@ export default function SourceTableApiContext({ children }) {
             .then((response) => {
                 setTableID(response.data.id);
                 setTableName(response.data.name);
-                console.log("--- Uploaded successfully", response.data);
+                navigate("/table",{state: {code: response.data.code}})
             })
 
             .catch((error) => {
@@ -35,16 +40,33 @@ export default function SourceTableApiContext({ children }) {
                 populateTable(response.data.file_contents);
                 setTableID(response.data.code);
                 setTableName(response.data.name);
-                console.log(response.data)
+                console.log("Response: ", response.data.file_contents);
             })
 
             .catch((error) => {
-                console.error("An error occured while getting table contents.", error);
+                console.error(
+                    "An error occured while getting table contents.",
+                    error
+                );
             });
     };
+    const getTableList = ()=>{
+        const endpoint = endpoints.fileManagerURL();
+        api.get(endpoint)
+            .then((response) => {
+                populateTableList(response.data);
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
 
-    const updateTable = (payload) => {
-        const endpoint = endpoints.detailedFileManagerURL();
+    const updateTable = () => {
+        const endpoint = endpoints.detailedFileManagerURL(tableID);
+        const payload = {
+            table:table,
+        };
         api.put(endpoint, payload)
 
             .then((response) => {
@@ -66,6 +88,7 @@ export default function SourceTableApiContext({ children }) {
     const contextMethods = {
         uploadTable,
         getTable,
+        getTableList,
         updateTable,
     };
 

@@ -27,7 +27,6 @@ export default function TabContainter() {
     const [activeTab, setActiveTab] = useState(openTabNumber);
 
     const handleTabSwitch = (event, selectedTab) => {
-        console.log(event, selectedTab);
         setActiveTab(selectedTab);
 
     };

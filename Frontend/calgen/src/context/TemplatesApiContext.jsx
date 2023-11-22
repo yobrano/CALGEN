@@ -9,7 +9,7 @@ const TempApiContext = React.createContext();
 function TemplatesApiContext({ children }) {
     // Hooks =====================
     const api = useProtectedEndpoint();
-    const { tableID, tableName } = useSourceTableApi();
+    const { tableID, tableName, updateTable } = useSourceTableApi();
     const [config, setConfig] = useState(defaultConfig);
 
     useEffect(() => {
@@ -21,6 +21,7 @@ function TemplatesApiContext({ children }) {
     // Methods =====================
     const changeConfig = (updatedConfig) => setConfig(updatedConfig);
     const build = () => {
+        updateTable()
         const postData = { ...config };
         const endpoint = endpoints.buildTable(tableID);
 
